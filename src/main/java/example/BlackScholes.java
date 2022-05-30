@@ -34,7 +34,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntUnaryOperator;
 
-// jmh:run -i 3 -wi 3 -f1 -t1 .*BlackScholes.*
+// jmh:run .*BlackScholes.*
 
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
