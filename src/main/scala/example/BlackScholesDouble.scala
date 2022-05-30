@@ -18,38 +18,38 @@ import java.util.function.IntUnaryOperator
 @Measurement(iterations = 3, time = 5)
 @Fork(value = 1, jvmArgsPrepend = Array("--add-modules=jdk.incubator.vector"))
 class BlackScholesDouble {
-  private[example] val Y = 0.2316419f
-  private[example] val A1 = 0.31938153f
-  private[example] val A2 = -0.356563782f
-  private[example] val A3 = 1.781477937f
-  private[example] val A4 = -1.821255978f
-  private[example] val A5 = 1.330274429f
-  private[example] val PI = Math.PI.toDouble
-  private[example] val fsp = DoubleVector.SPECIES_PREFERRED
+  private[this] val Y = 0.2316419
+  private[this] val A1 = 0.31938153
+  private[this] val A2 = -0.356563782
+  private[this] val A3 = 1.781477937
+  private[this] val A4 = -1.821255978
+  private[this] val A5 = 1.330274429
+  private[this] val PI = Math.PI
+  private[this] val fsp = DoubleVector.SPECIES_PREFERRED
 
   @Param(Array("1024"))
-  private[example] var size = 0
+  private[this] var size = 0
 
-  private[example] var s0: Array[Double] = _ // Stock Price
+  private[this] var s0: Array[Double] = _ // Stock Price
 
-  private[example] var x: Array[Double] = _ // Strike Price
+  private[this] var x: Array[Double] = _ // Strike Price
 
-  private[example] var t: Array[Double] = _ // Maturity
+  private[this] var t: Array[Double] = _ // Maturity
 
-  private[example] var call: Array[Double] = _
-  private[example] var put: Array[Double] = _
-  private[example] var r: Double = .0 // risk-neutrality
+  private[this] var call: Array[Double] = _
+  private[this] var put: Array[Double] = _
+  private[this] var r: Double = .0 // risk-neutrality
 
-  private[example] var sig: Double = .0 // volatility
+  private[this] var sig: Double = .0 // volatility
 
-  private[example] var rand: Random = _
+  private[this] var rand: Random = _
 
-  private[example] def randDouble(low: Double, high: Double) = {
+  private[this] def randDouble(low: Double, high: Double) = {
     val `val` = rand.nextDouble
     (1.0f - `val`) * low + `val` * high
   }
 
-  private[example] def fillRandom(low: Double, high: Double) = {
+  private[this] def fillRandom(low: Double, high: Double) = {
     val array = new Array[Double](size)
     for (i <- 0 until array.length) {
       array(i) = randDouble(low, high)
@@ -59,16 +59,16 @@ class BlackScholesDouble {
 
   @Setup def init(): Unit = {
     rand = new Random
-    s0 = fillRandom(5.0f, 30.0f)
-    x = fillRandom(1.0f, 100.0f)
-    t = fillRandom(0.25f, 10.0f)
-    r = 0.02f
-    sig = 0.30f
+    s0 = fillRandom(5.0, 30.0)
+    x = fillRandom(1.0, 100.0)
+    t = fillRandom(0.25, 10.0)
+    r = 0.02
+    sig = 0.30
     call = new Array[Double](size)
     put = new Array[Double](size)
   }
 
-  private[example] def cdf(inp: Double) = {
+  private[this] def cdf(inp: Double) = {
     var x = inp
     if (inp < 0f) x = -inp
     val term = 1f / (1f + (Y * x))
@@ -101,18 +101,18 @@ class BlackScholesDouble {
     scalar_black_scholes_kernel(0)
   }
 
-  private[example] def vcdf(vinp: DoubleVector) = {
+  private[this] def vcdf(vinp: DoubleVector) = {
     val vx = vinp.abs
-    val vone = DoubleVector.broadcast(fsp, 1.0f)
-    val vtwo = DoubleVector.broadcast(fsp, 2.0f)
+    val vone = DoubleVector.broadcast(fsp, 1.0)
+    val vtwo = DoubleVector.broadcast(fsp, 2.0)
     val vterm = vone.div(vone.add(vx.mul(Y)))
     val vterm_pow2 = vterm.mul(vterm)
     val vterm_pow3 = vterm_pow2.mul(vterm)
     val vterm_pow4 = vterm_pow2.mul(vterm_pow2)
     val vterm_pow5 = vterm_pow2.mul(vterm_pow3)
-    val vpart1 = vone.div(vtwo.mul(PI).lanewise(VectorOperators.SQRT)).mul(vx.mul(vx).neg.lanewise(VectorOperators.EXP).mul(0.5f))
+    val vpart1 = vone.div(vtwo.mul(PI).lanewise(VectorOperators.SQRT)).mul(vx.mul(vx).neg.lanewise(VectorOperators.EXP).mul(0.5))
     val vpart2 = vterm.mul(A1).add(vterm_pow2.mul(A2)).add(vterm_pow3.mul(A3)).add(vterm_pow4.mul(A4)).add(vterm_pow5.mul(A5))
-    val vmask = vinp.compare(VectorOperators.GT, 0f)
+    val vmask = vinp.compare(VectorOperators.GT, 0.0)
     val vresult1 = vpart1.mul(vpart2)
     val vresult2 = vresult1.neg.add(vone)
     val vresult = vresult1.blend(vresult2, vmask)
@@ -122,7 +122,7 @@ class BlackScholesDouble {
   def vector_black_scholes_kernel: Int = {
     var i = 0
     val vsig = DoubleVector.broadcast(fsp, sig)
-    val vsig_sq_by2 = vsig.mul(vsig).mul(0.5f)
+    val vsig_sq_by2 = vsig.mul(vsig).mul(0.5)
     val vr = DoubleVector.broadcast(fsp, r)
     val vnegr = DoubleVector.broadcast(fsp, -r)
 
