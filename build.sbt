@@ -9,6 +9,6 @@ lazy val root = (project in file("."))
   .settings(
     name := "Scala Vector Examples",
     javacOptions ++= Seq("--add-modules=jdk.incubator.vector"),
-    scalacOptions ++= Seq("-target:12"),
+    scalacOptions ++= Seq("-target:12", "-optimize"),
     libraryDependencies += scalaTest % Test
   ).enablePlugins(JmhPlugin)

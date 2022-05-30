@@ -51,8 +51,10 @@ class BlackScholesScalaDouble {
 
   private[this] def fillRandom(low: Double, high: Double) = {
     val array = new Array[Double](size)
-    for (i <- 0 until array.length) {
+    var i = 0
+    while(i < array.length) {
       array(i) = randDouble(low, high)
+      i += 1
     }
     array
   }
@@ -70,15 +72,15 @@ class BlackScholesScalaDouble {
 
   private[this] def cdf(inp: Double) = {
     var x = inp
-    if (inp < 0f) x = -inp
-    val term = 1f / (1f + (Y * x))
+    if (inp < 0.0) x = -inp
+    val term = 1.0 / (1.0 + (Y * x))
     val term_pow2 = term * term
     val term_pow3 = term_pow2 * term
     val term_pow4 = term_pow2 * term_pow2
     val term_pow5 = term_pow2 * term_pow3
-    val part1 = (1f / Math.sqrt(2f * PI).toDouble) * Math.exp((-x * x) * 0.5f).toDouble
+    val part1 = (1.0 / Math.sqrt(2.0 * PI)) * Math.exp((-x * x) * 0.5)
     val part2 = (A1 * term) + (A2 * term_pow2) + (A3 * term_pow3) + (A4 * term_pow4) + (A5 * term_pow5)
-    if (inp >= 0f) 1f - part1 * part2
+    if (inp >= 0.0) 1.0 - part1 * part2
     else part1 * part2
   }
 
@@ -86,9 +88,9 @@ class BlackScholesScalaDouble {
     val sig_sq_by2 = 0.5f * sig * sig
     var i = off
     while(i < size) {
-      val log_s0byx = Math.log(s0(i) / x(i)).toDouble
-      val sig_sqrt_t = sig * Math.sqrt(t(i)).toDouble
-      val exp_neg_rt = Math.exp(-r * t(i)).toDouble
+      val log_s0byx = Math.log(s0(i) / x(i))
+      val sig_sqrt_t = sig * Math.sqrt(t(i))
+      val exp_neg_rt = Math.exp(-r * t(i))
       val d1 = (log_s0byx + (r + sig_sq_by2) * t(i)) / sig_sqrt_t
       val d2 = d1 - sig_sqrt_t
       call(i) = s0(i) * cdf(d1) - exp_neg_rt * x(i) * cdf(d2)
