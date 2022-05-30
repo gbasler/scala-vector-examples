@@ -17,7 +17,7 @@ import java.util.function.IntUnaryOperator
 @Warmup(iterations = 3, time = 5)
 @Measurement(iterations = 3, time = 5)
 @Fork(value = 1, jvmArgsPrepend = Array("--add-modules=jdk.incubator.vector"))
-class BlackScholesDouble {
+class BlackScholesScalaDouble {
   private[this] val Y = 0.2316419
   private[this] val A1 = 0.31938153
   private[this] val A2 = -0.356563782
