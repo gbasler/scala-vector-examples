@@ -128,7 +128,7 @@ class BlackScholesScalaDouble {
     val vr = DoubleVector.broadcast(fsp, r)
     val vnegr = DoubleVector.broadcast(fsp, -r)
 
-    while(i < x.length - fsp.length) {
+    while(i <= x.length - fsp.length) {
       val vx = DoubleVector.fromArray(fsp, x, i)
       val vs0 = DoubleVector.fromArray(fsp, s0, i)
       val vt = DoubleVector.fromArray(fsp, t, i)
