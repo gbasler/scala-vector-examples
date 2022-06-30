@@ -9,6 +9,10 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 import java.util.function.IntUnaryOperator
 
+object Config {
+  val fsp = DoubleVector.SPECIES_PREFERRED
+}
+
 // jmh:run .*BlackScholesDouble.*
 
 @BenchmarkMode(Array(Mode.Throughput))
@@ -25,7 +29,6 @@ class BlackScholesScalaDouble {
   private[this] val A4 = -1.821255978
   private[this] val A5 = 1.330274429
   private[this] val PI = Math.PI
-  private[this] val fsp = DoubleVector.SPECIES_PREFERRED
 
   @Param(Array("1024"))
   private[this] var size = 0
@@ -105,8 +108,8 @@ class BlackScholesScalaDouble {
 
   private[this] def vcdf(vinp: DoubleVector) = {
     val vx = vinp.abs
-    val vone = DoubleVector.broadcast(fsp, 1.0)
-    val vtwo = DoubleVector.broadcast(fsp, 2.0)
+    val vone = DoubleVector.broadcast(Config.fsp, 1.0)
+    val vtwo = DoubleVector.broadcast(Config.fsp, 2.0)
     val vterm = vone.div(vone.add(vx.mul(Y)))
     val vterm_pow2 = vterm.mul(vterm)
     val vterm_pow3 = vterm_pow2.mul(vterm)
@@ -123,15 +126,15 @@ class BlackScholesScalaDouble {
 
   def vector_black_scholes_kernel: Int = {
     var i = 0
-    val vsig = DoubleVector.broadcast(fsp, sig)
+    val vsig = DoubleVector.broadcast(Config.fsp, sig)
     val vsig_sq_by2 = vsig.mul(vsig).mul(0.5)
-    val vr = DoubleVector.broadcast(fsp, r)
-    val vnegr = DoubleVector.broadcast(fsp, -r)
+    val vr = DoubleVector.broadcast(Config.fsp, r)
+    val vnegr = DoubleVector.broadcast(Config.fsp, -r)
 
-    while(i <= x.length - fsp.length) {
-      val vx = DoubleVector.fromArray(fsp, x, i)
-      val vs0 = DoubleVector.fromArray(fsp, s0, i)
-      val vt = DoubleVector.fromArray(fsp, t, i)
+    while(i <= x.length - Config.fsp.length) {
+      val vx = DoubleVector.fromArray(Config.fsp, x, i)
+      val vs0 = DoubleVector.fromArray(Config.fsp, s0, i)
+      val vt = DoubleVector.fromArray(Config.fsp, t, i)
       val vlog_s0byx = vs0.div(vx).lanewise(VectorOperators.LOG)
       val vsig_sqrt_t = vt.lanewise(VectorOperators.SQRT).mul(vsig)
       val vexp_neg_rt = vt.mul(vnegr).lanewise(VectorOperators.EXP)
@@ -142,7 +145,7 @@ class BlackScholesScalaDouble {
       vcall.intoArray(call, i)
       vput.intoArray(put, i)
 
-      i += fsp.length
+      i += Config.fsp.length
     }
     i
   }
