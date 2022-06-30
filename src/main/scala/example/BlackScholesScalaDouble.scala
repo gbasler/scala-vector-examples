@@ -71,6 +71,7 @@ class BlackScholesScalaDouble {
     sig = 0.30
     call = new Array[Double](size)
     put = new Array[Double](size)
+    println(s"preferred species (${Config.fsp}) #lanes: ${Config.fsp.length()}")
   }
 
   private[this] def cdf(inp: Double) = {
